@@ -80,6 +80,12 @@ namespace Simple.Todo.Tasks
             Logger.Info("Updating a task for input: " + input);
 
             // TODO: Implement feature
+            _taskRepository.Update(new Task
+            {
+                Id = input.TaskId,
+                State = input.State.GetValueOrDefault()
+            });
+
         }
 
         public void CreateTask(CreateTaskInput input)
@@ -87,6 +93,12 @@ namespace Simple.Todo.Tasks
             Logger.Info("Creating a task for input: " + input);
 
             // TODO: Implement feature
+            _taskRepository.Insert(new Task
+            {
+                AssignedPersonId = input.AssignedPersonId,
+                Description = input.Description
+            });
+           
         }
     }
 }

@@ -14,6 +14,7 @@ import { ServiceProxyModule } from '@shared/service-proxies/service-proxy.module
 import { SharedModule } from '@shared/shared.module';
 import { HomeComponent } from '@app/home/home.component';
 import { AboutComponent } from '@app/about/about.component';
+import { CreateTaskDialogComponent } from './home/create-task/create-task-dialog.component';
 // tenants
 import { TenantsComponent } from '@app/tenants/tenants.component';
 import { CreateTenantDialogComponent } from './tenants/create-tenant/create-tenant-dialog.component';
@@ -43,6 +44,7 @@ import { SidebarMenuComponent } from './layout/sidebar-menu.component';
   declarations: [
     AppComponent,
     HomeComponent,
+   CreateTaskDialogComponent,
     AboutComponent,
     // tenants
     TenantsComponent,
@@ -85,7 +87,8 @@ import { SidebarMenuComponent } from './layout/sidebar-menu.component';
     NgxPaginationModule,
   ],
   providers: [],
-  entryComponents: [
+    entryComponents: [
+    CreateTaskDialogComponent,
     // tenants
     CreateTenantDialogComponent,
     EditTenantDialogComponent,

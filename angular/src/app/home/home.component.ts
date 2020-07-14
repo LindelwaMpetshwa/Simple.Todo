@@ -1,4 +1,5 @@
 import { Component, Injector, ChangeDetectionStrategy } from '@angular/core';
+import { finalize } from 'rxjs/operators';
 import { AppComponentBase } from '@shared/app-component-base';
 import { appModuleAnimation } from '@shared/animations/routerTransition';
 import { BsModalService, BsModalRef } from 'ngx-bootstrap/modal';
@@ -10,12 +11,12 @@ import {
   TaskServiceProxy,
     GetTasksOutput,
     TaskDto,
-    TenantDtoPagedResultDto,
+    TaskDtoPagedResultDto,
     TaskState
 } from '@shared/service-proxies/service-proxies';
 import { CreateTaskDialogComponent } from './create-task/create-task-dialog.component';
 class PagedTasksRequestDto extends PagedRequestDto {
-    keyword: TaskState._1;
+    keyword: TaskState;
     isActive: boolean | null;
 }
 @Component({
@@ -24,10 +25,11 @@ class PagedTasksRequestDto extends PagedRequestDto {
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 
-export class HomeComponent extends AppComponentBase {
-
-    tasks: TaskDto[] = [];
+export class HomeComponent extends PagedListingComponentBase<TaskDto> {
+   
+    tasks: TaskDto[];
     keyword = TaskState._1;
+    p
     constructor(
         injector: Injector,
         private _taskService: TaskServiceProxy,
@@ -35,6 +37,8 @@ export class HomeComponent extends AppComponentBase {
     ) {
         super(injector);
     }
+
+    
     createTask(): void {
         this.showCreateTaskDialog();
     }
@@ -47,34 +51,34 @@ export class HomeComponent extends AppComponentBase {
                     class: 'modal-lg',
                 }
         );
-        //createTaskDialog.content.onSave.subscribe(() => {
-        //    this.refresh();
-        //});
+        createTaskDialog.content.onSave.subscribe(() => {
+            this.ngOnInit();
+        });
         
         }
 
-    //list(
-    //    request: PagedTasksRequestDto,
-    //    pageNumber: number,
-    //    finishedCallback: Function
-    //): void {
-    //    request.keyword = this.keyword;
-    //    request.isActive = this.isActive;
+    list(
+        request: PagedTasksRequestDto,
+        pageNumber: number,
+        finishedCallback: Function
+    ): void {
+        
+       
+        this._taskService.getTasks(this.keyword,undefined)
+            .pipe(
+                finalize(() => {
+                    finishedCallback();
+                })
+            )
+            .subscribe((result: TaskDtoPagedResultDto) => {
+                this.tasks = result.items;
+                
+                //this.showPaging(result, pageNumber);
+            });
+    }
+    protected delete(entity: TaskDto): void {
+        //throw new Error("Method not implemented.");
+    }
 
-    //    this._taskService
-    //        .getTasks(
-    //            request.keyword,
-
-    //        )
-    //        .pipe(
-    //            finalize(() => {
-    //                finishedCallback();
-    //            })
-    //        )
-    //        .subscribe((result: TenantDtoPagedResultDto) => {
-    //            this.tasks = result.items;
-    //            this.showPaging(result, pageNumber);
-    //        });
-    //}
     
 }

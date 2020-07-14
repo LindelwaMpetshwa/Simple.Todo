@@ -798,13 +798,16 @@ export class TaskServiceProxy {
         this.baseUrl = baseUrl ? baseUrl : "";
     }
 
+
+
     /**
      * @param state (optional) 
      * @param assignedPersonId (optional) 
      * @return Success
      */
-    getTasks(state: TaskState | undefined, assignedPersonId: number | null | undefined): Observable<GetTasksOutput> {
+    getTasks(state: TaskState | undefined, assignedPersonId: number | null | undefined): Observable<TaskDtoPagedResultDto> {
         let url_ = this.baseUrl + "/api/services/app/Task/GetTasks?";
+        
         if (state === null)
             throw new Error("The parameter 'state' cannot be null.");
         else if (state !== undefined)
@@ -812,7 +815,7 @@ export class TaskServiceProxy {
         if (assignedPersonId !== undefined && assignedPersonId !== null)
             url_ += "AssignedPersonId=" + encodeURIComponent("" + assignedPersonId) + "&";
         url_ = url_.replace(/[?&]$/, "");
-
+       
         let options_ : any = {
             observe: "response",
             responseType: "blob",
@@ -820,7 +823,7 @@ export class TaskServiceProxy {
                 "Accept": "text/plain"
             })
         };
-
+       
         return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
             return this.processGetTasks(response_);
         })).pipe(_observableCatch((response_: any) => {
@@ -828,14 +831,14 @@ export class TaskServiceProxy {
                 try {
                     return this.processGetTasks(<any>response_);
                 } catch (e) {
-                    return <Observable<GetTasksOutput>><any>_observableThrow(e);
+                    return <Observable<TaskDtoPagedResultDto>><any>_observableThrow(e);
                 }
             } else
-                return <Observable<GetTasksOutput>><any>_observableThrow(response_);
+                return <Observable<TaskDtoPagedResultDto>><any>_observableThrow(response_);
         }));
     }
 
-    protected processGetTasks(response: HttpResponseBase): Observable<GetTasksOutput> {
+    protected processGetTasks(response: HttpResponseBase): Observable<TaskDtoPagedResultDto> {
         const status = response.status;
         const responseBlob =
             response instanceof HttpResponse ? response.body :
@@ -846,7 +849,7 @@ export class TaskServiceProxy {
             return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
             let result200: any = null;
             let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result200 = GetTasksOutput.fromJS(resultData200);
+                result200 = TaskDtoPagedResultDto.fromJS(resultData200);
             return _observableOf(result200);
             }));
         } else if (status !== 200 && status !== 204) {
@@ -854,7 +857,7 @@ export class TaskServiceProxy {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
             }));
         }
-        return _observableOf<GetTasksOutput>(<any>null);
+        return _observableOf<TaskDtoPagedResultDto>(<any>null);
     }
 
     /**
@@ -3590,7 +3593,59 @@ export interface ITenantDtoPagedResultDto {
     totalCount: number;
     items: TenantDto[] | undefined;
 }
+export class TaskDtoPagedResultDto implements ITaskDtoPagedResultDto {
+    totalCount: number;
+    items: TaskDto[] | undefined;
 
+    constructor(data?: ITaskDtoPagedResultDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.totalCount = _data.tasks.length;
+            if (Array.isArray(_data.tasks)) {
+                this.items = [] as any;
+                for (let item of _data.tasks)
+                    this.items.push(TaskDto.fromJS(item));
+            }
+        }
+    }
+
+    static fromJS(data: any): TaskDtoPagedResultDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new TaskDtoPagedResultDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["totalCount"] = this.totalCount;
+        if (Array.isArray(this.items)) {
+            data["items"] = [];
+            for (let item of this.items)
+                data["items"].push(item.toJSON());
+        }
+        return data;
+    }
+
+    clone(): TaskDtoPagedResultDto {
+        const json = this.toJSON();
+        let result = new TaskDtoPagedResultDto();
+        result.init(json);
+        return result;
+    }
+}
+export interface ITaskDtoPagedResultDto {
+    totalCount: number;
+    items: TaskDto[] | undefined;
+}
 export class AuthenticateModel implements IAuthenticateModel {
     userNameOrEmailAddress: string;
     password: string;

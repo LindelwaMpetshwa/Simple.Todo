@@ -10,7 +10,10 @@ import { BsModalRef } from 'ngx-bootstrap/modal';
 import { AppComponentBase } from '@shared/app-component-base';
 import {
    CreateTaskInput,
-  TaskServiceProxy
+    TaskServiceProxy,
+    PersonServiceProxy,
+    GetAllPeopleOutput,
+    PersonDto
 } from '@shared/service-proxies/service-proxies';
 
 @Component({
@@ -20,23 +23,31 @@ export class CreateTaskDialogComponent extends AppComponentBase
   implements OnInit {
   saving = false;
     task: CreateTaskInput = new CreateTaskInput();
-
+    people: PersonDto[]=[];
   @Output() onSave = new EventEmitter<any>();
 
-  constructor(
-    injector: Injector,
-    public _taskService: TaskServiceProxy,
-    public bsModalRef: BsModalRef
-  ) {
-    super(injector);
-  }
+    constructor(
+        injector: Injector,
+        public _taskService: TaskServiceProxy,
+        public _persornService: PersonServiceProxy,
+        public bsModalRef: BsModalRef
+    ) {
+        super(injector);
+    }
 
     
 
     ngOnInit(): void {
-        this.task.assignedPersonId = 0;
-    }
+        this._persornService.getAllPeople()
+            .subscribe((result: GetAllPeopleOutput) => {
+                this.people = result.people;
 
+            });
+
+    }
+    SetSelectedPerson(selectedVal: any) {
+        this.task.assignedPersonId = selectedVal;
+    }
     save(): void {
         this.saving = true;
 
@@ -51,6 +62,7 @@ export class CreateTaskDialogComponent extends AppComponentBase
         this.notify.info(this.l('SavedSuccessfully'));
         this.bsModalRef.hide();
         this.onSave.emit();
+        this.ngOnInit();
       });
   }
 }

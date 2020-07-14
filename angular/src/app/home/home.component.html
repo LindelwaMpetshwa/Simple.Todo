@@ -63,9 +63,9 @@
                         <td>{{ task.assignedPersonName }}</td>
                         <td>
                          
-                            <button type="button"
-                                    class="btn btn-sm bg-danger mx-2">
-                                <i class="fas fa-trash"></i>
+                            <button type="button" (click)="completeTask(task)"
+                                    class="btn btn-sm bg-blue mx-2">
+                                <i class="fas fa-check"></i>
                                 {{ "Complete Task" | localize }}
                             </button>
                         </td>

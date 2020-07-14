@@ -8,11 +8,11 @@ import {
     PagedRequestDto,
 } from '@shared/paged-listing-component-base';
 import {
-  TaskServiceProxy,
-    GetTasksOutput,
+    TaskServiceProxy,
     TaskDto,
-    TaskDtoPagedResultDto,
-    TaskState
+    TaskDtoPagedResultDto,
+    TaskState,
+    UpdateTaskInput
 } from '@shared/service-proxies/service-proxies';
 import { CreateTaskDialogComponent } from './create-task/create-task-dialog.component';
 class PagedTasksRequestDto extends PagedRequestDto {
@@ -38,7 +38,22 @@ export class HomeComponent extends PagedListingComponentBase<TaskDto> {
         super(injector);
     }
 
-    
+    completeTask(task: TaskDto): void {
+        let taskInput = <UpdateTaskInput>{};
+        taskInput.taskId = task.id;
+        taskInput.state = TaskState._2;
+        this._taskService
+            .updateTask(taskInput)
+            .pipe(
+                finalize(() => {
+                    abp.notify.success(this.l('Task Successfully Updated'));
+                    this.refresh();
+                })
+            )
+            .subscribe(() => { });
+                
+          
+    }
     createTask(): void {
         this.showCreateTaskDialog();
     }
@@ -72,8 +87,7 @@ export class HomeComponent extends PagedListingComponentBase<TaskDto> {
             )
             .subscribe((result: TaskDtoPagedResultDto) => {
                 this.tasks = result.items;
-                
-                //this.showPaging(result, pageNumber);
+
             });
     }
     protected delete(entity: TaskDto): void {

@@ -78,13 +78,14 @@ namespace Simple.Todo.Tasks
         public void UpdateTask(UpdateTaskInput input)
         {
             Logger.Info("Updating a task for input: " + input);
-
             // TODO: Implement feature
-            _taskRepository.Update(new Task
+            var task = _taskRepository.Get(input.TaskId);
+            
+            if (task != null)
             {
-                Id = input.TaskId,
-                State = input.State.GetValueOrDefault()
-            });
+                task.State = input.State.GetValueOrDefault();
+                _taskRepository.Update(task);
+            }
 
         }
 

@@ -13,24 +13,15 @@
         <label class="col-md-3 col-form-label" for="assignedPersonId">
             {{ "AssignedPerson" | localize }}
         </label>
-      <div class="col-md-9">
-        <input
-          type="text"
-          class="form-control"
-          name="assignedPersonId"
-          id="assignedPersonId"
-          minlength="1"
-          maxlength="64"
-          required
-          [(ngModel)]="task.assignedPersonId"
-          #assignedPersonIdModel="ngModel"
-          #assignedPersonIdEl
-        />
-        <abp-validation-summary
-          [control]="assignedPersonIdModel"
-          [controlEl]="assignedPersonIdEl"
-        ></abp-validation-summary>
-      </div>
+        <div class="col-md-9">
+            <select required (change)="SetSelectedPerson($event.target.value)">
+                <option value="0">--Select Person--</option>
+                <option *ngFor="let person of people" value={{person.id}} >
+                    {{person.name}}
+                </option>
+            </select>
+                
+        </div>
     </div>
     <div class="form-group row required">
       <label class="col-md-3 col-form-label" for="description">
